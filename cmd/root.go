@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ipipdotnet/datx-go"
 	"github.com/lostsnow/ipd/ip"
 	"github.com/spf13/cobra"
 )
@@ -22,13 +21,18 @@ var RootCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		city, err := datx.NewCity("./data/17monipdb.datx")
+		db, err := LoadCity()
 		if err != nil {
-			fmt.Errorf("IP datx load error: ", err)
+			fmt.Printf("IP datx load error: %s\n", err)
+			return
 		}
-
 		ipAddr := args[0]
-		ip.Find(city, ipAddr)
+		l, err := db.Find(ipAddr)
+		if err != nil {
+			fmt.Printf("IP find error: %s\n", err)
+			return
+		}
+		fmt.Printf("%#v", l)
 	},
 }
 
@@ -37,4 +41,8 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
+}
+
+func LoadCity() (*ip.City, error) {
+	return ip.NewCity("./data/17monipdb.datx")
 }
