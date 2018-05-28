@@ -10,6 +10,17 @@ import (
 	"strings"
 )
 
+type Location struct {
+	Ip          string
+	Country     string
+	CountryCode string
+	State       string
+	StateCode   string
+	City        string
+	CityCode    string
+	Code        string
+}
+
 type Db struct {
 	file   *os.File
 	index  []byte
@@ -59,7 +70,7 @@ func (db *Db) load(fn string) error {
 	return nil
 }
 
-func (db *Db) Find(s string) ([]string, error) {
+func (db *Db) Find(s string) (*Location, error) {
 	ipv := net.ParseIP(s)
 	if ipv == nil {
 		return nil, fmt.Errorf("%s", "ip format error.")
@@ -98,7 +109,35 @@ func (db *Db) Find(s string) ([]string, error) {
 			}))
 			l := int(db.index[pos+7])*256 + int(db.index[pos+8])
 
-			return strings.Split(string(db.data[off:off+l]), "\t"), nil
+			loc := strings.Split(string(db.data[off:off+l]), "\t")
+			if len(loc) < 4 {
+				return nil, fmt.Errorf("%s", "ip location error.")
+			}
+			code := GetRegionCode(loc[0], loc[1], loc[2])
+
+			cCode := ""
+			sCode := ""
+			ccCode := ""
+			if len(code) >= 2 {
+				cCode = code[:2]
+				sCode = code[:2]
+			}
+			if len(code) >= 4 {
+				sCode = code[:4]
+			}
+			if len(code) >= 6 {
+				ccCode = code[:6]
+			}
+			return &Location{
+				Ip:          intToIP(val).String(),
+				Country:     loc[0],
+				State:       loc[1],
+				City:        loc[2],
+				CountryCode: cCode,
+				StateCode:   sCode,
+				CityCode:    ccCode,
+				Code:        code,
+			}, nil
 		}
 	}
 
@@ -155,14 +194,14 @@ func (db *Db) Check() (*IrregularLocation, error) {
 			continue
 		}
 
-		no_city := map[string]bool{
+		noCity := map[string]bool{
 			"北京": true,
 			"天津": true,
 			"上海": true,
 			"重庆": true,
 			"台湾": true,
 		}
-		if _, ok := no_city[loc[1]]; ok {
+		if _, ok := noCity[loc[1]]; ok {
 			continue
 		}
 
@@ -184,4 +223,22 @@ func intToIP(nn uint32) net.IP {
 	ip := make(net.IP, 4)
 	binary.BigEndian.PutUint32(ip, nn)
 	return ip
+}
+
+func GetRegionCode(c, s, cc string) string {
+	country := GetCountry(c)
+	if country == nil {
+		return ""
+	}
+
+	state := country.GetState(s)
+	if state == nil {
+		return country.Code
+	}
+
+	city := state.GetCity(cc)
+	if city == nil {
+		return state.Code
+	}
+	return city.Code
 }
