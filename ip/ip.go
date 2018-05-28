@@ -10,15 +10,15 @@ import (
 	"strings"
 )
 
-type City struct {
+type Db struct {
 	file   *os.File
 	index  []byte
 	data   []byte
 	offset int
 }
 
-func NewCity(name string) (*City, error) {
-	db := &City{}
+func NewDb(name string) (*Db, error) {
+	db := &Db{}
 
 	if err := db.load(name); err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func NewCity(name string) (*City, error) {
 	return db, nil
 }
 
-func (db *City) load(fn string) error {
+func (db *Db) load(fn string) error {
 	var err error
 	db.file, err = os.Open(fn)
 	if err != nil {
@@ -40,7 +40,6 @@ func (db *City) load(fn string) error {
 	}
 	off := int(binary.BigEndian.Uint32(b4))
 	db.offset = off
-	fmt.Println(off)
 
 	_, err = db.file.Seek(262148, 0)
 	if err != nil {
@@ -60,7 +59,7 @@ func (db *City) load(fn string) error {
 	return nil
 }
 
-func (db *City) Find(s string) ([]string, error) {
+func (db *Db) Find(s string) ([]string, error) {
 	ipv := net.ParseIP(s)
 	if ipv == nil {
 		return nil, fmt.Errorf("%s", "ip format error.")
@@ -112,7 +111,7 @@ type IrregularLocation struct {
 	City    []string
 }
 
-func (db *City) Check() (*IrregularLocation, error) {
+func (db *Db) Check() (*IrregularLocation, error) {
 	i := &IrregularLocation{}
 
 	iCountry := map[string]bool{}
@@ -120,6 +119,7 @@ func (db *City) Check() (*IrregularLocation, error) {
 	iCity := map[string]bool{}
 
 	for pos := 0; pos < db.offset-262148-262144; pos += 9 {
+
 		// end := binary.BigEndian.Uint32(db.index[pos : pos+4])
 		off := binary.LittleEndian.Uint32(append(db.index[pos+4:pos+7], byte(0)))
 		length := int(db.index[pos+7])*256 + int(db.index[pos+8])
@@ -131,41 +131,43 @@ func (db *City) Check() (*IrregularLocation, error) {
 
 		loc := strings.Split(string(db.data[off:off+uint32(length)]), "\t")
 
-		country := getCountryCode(loc[0])
-		if _, ok := irregularCountries[loc[0]]; country == "" && !ok {
+		country := GetCountry(loc[0])
+		if _, ok := irregularCountries[loc[0]]; country == nil && !ok {
 			if _, ok = iCountry[loc[0]]; !ok {
 				i.Country = append(i.Country, loc[0])
 				iCountry[loc[0]] = true
 			}
 		}
-
-		if country != "CN" || loc[1] == "中国" {
+		if country == nil {
 			continue
 		}
 
-		state := getStateCode(country, loc[1])
-		if _, ok := iState[loc[0]+loc[1]]; state == "" && !ok {
+		if country.Code != "CN" || loc[1] == "中国" {
+			continue
+		}
 
+		state := country.GetState(loc[1])
+		if _, ok := iState[loc[0]+loc[1]]; state == nil && !ok {
 			i.State = append(i.State, loc[0]+loc[1])
 			iState[loc[0]+loc[1]] = true
 		}
+		if state == nil || loc[2] == "" {
+			continue
+		}
 
-		directState := map[string]bool{
+		no_city := map[string]bool{
 			"北京": true,
 			"天津": true,
 			"上海": true,
 			"重庆": true,
+			"台湾": true,
 		}
-
-		if loc[2] == "" {
-			continue
-		}
-		if _, ok := directState[loc[1]]; ok {
+		if _, ok := no_city[loc[1]]; ok {
 			continue
 		}
 
-		city := getCityCode(country, state, loc[2])
-		if _, ok := iCity[loc[0]+loc[1]+loc[2]]; city == "" && !ok {
+		city := state.GetCity(loc[2])
+		if _, ok := iCity[loc[0]+loc[1]+loc[2]]; city == nil && !ok {
 			i.City = append(i.City, loc[0]+loc[1]+loc[2])
 			iCity[loc[0]+loc[1]+loc[2]] = true
 		}

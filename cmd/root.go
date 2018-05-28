@@ -21,7 +21,7 @@ var RootCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		db, err := LoadCity()
+		db, err := LoadDb()
 		if err != nil {
 			fmt.Printf("IP datx load error: %s\n", err)
 			return
@@ -43,6 +43,6 @@ func Execute() {
 	}
 }
 
-func LoadCity() (*ip.City, error) {
-	return ip.NewCity("./data/17monipdb.datx")
+func LoadDb() (*ip.Db, error) {
+	return ip.NewDb("./data/17monipdb.datx")
 }

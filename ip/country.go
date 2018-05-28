@@ -1,259 +1,339 @@
 package ip
 
+type Country struct {
+	Title      string
+	Code       string
+	States     []State
+	StateCodes map[string]State
+}
+
+func init() {
+	for _, v := range allCountries {
+		countryCodes[v.Title] = v
+	}
+}
+
+func GetCountry(c string) *Country {
+	if v, ok := countryCodes[c]; ok {
+		return &v
+	}
+	return nil
+}
+
+func (c *Country) GetStates() []State {
+	return c.States
+}
+
+func (c *Country) GetState(s string) *State {
+	if v, ok := c.StateCodes[s]; ok {
+		return &v
+	}
+	return nil
+}
+
 var (
 	// http://zh.wikipedia.org/wiki/ISO_3166-1
-	countryCodes = map[string]string{
-		"安道尔":        "AD",
-		"阿联酋":        "AE",
-		"阿富汗":        "AF",
-		"安提瓜和巴布达":    "AG",
-		"安圭拉":        "AI",
-		"阿尔巴尼亚":      "AL",
-		"亚美尼亚":       "AM",
-		"安哥拉":        "AO",
-		"南极洲":        "AQ",
-		"阿根廷":        "AR",
-		"美属萨摩亚":      "AS",
-		"奥地利":        "AT",
-		"澳大利亚":       "AU",
-		"阿鲁巴":        "AW",
-		"奥兰群岛":       "AX",
-		"阿塞拜疆":       "AZ",
-		"波斯尼亚和黑塞哥维那": "BA",
-		"巴巴多斯":       "BB",
-		"孟加拉":        "BD",
-		"比利时":        "BE",
-		"布基纳法索":      "BF",
-		"保加利亚":       "BG",
-		"巴林":         "BH",
-		"布隆迪":        "BI",
-		"贝宁":         "BJ",
-		"圣巴泰勒米岛":     "BL",
-		"百慕大":        "BM",
-		"文莱":         "BN",
-		"玻利维亚":       "BO",
-		"荷兰加勒比":      "BQ",
-		"巴西":         "BR",
-		"巴哈马":        "BS",
-		"不丹":         "BT",
-		"布韦岛":        "BV",
-		"博茨瓦纳":       "BW",
-		"白俄罗斯":       "BY",
-		"伯利兹":        "BZ",
-		"加拿大":        "CA",
-		"科科斯(基林)群岛":  "CC",
-		"刚果(金)":      "CD",
-		"中非":         "CF",
-		"刚果(布)":      "CG",
-		"瑞士":         "CH",
-		"科特迪瓦":       "CI",
-		"库克群岛":       "CK",
-		"智利":         "CL",
-		"喀麦隆":        "CM",
-		"中国":         "CN",
-		"哥伦比亚":       "CO",
-		"哥斯达黎加":      "CR",
-		"古巴":         "CU",
-		"佛得角":        "CV",
-		"库拉索":        "CW",
-		"圣诞岛":        "CX",
-		"塞浦路斯":       "CY",
-		"捷克":         "CZ",
-		"德国":         "DE",
-		"吉布提":        "DJ",
-		"丹麦":         "DK",
-		"多米尼克":       "DM",
-		"多米尼加":       "DO",
-		"阿尔及利亚":      "DZ",
-		"厄瓜多尔":       "EC",
-		"爱沙尼亚":       "EE",
-		"埃及":         "EG",
-		"西撒哈拉":       "EH",
-		"厄立特里亚":      "ER",
-		"西班牙":        "ES",
-		"埃塞俄比亚":      "ET",
-		"芬兰":         "FI",
-		"斐济":         "FJ",
-		"福克兰群岛":      "FK",
-		"密克罗尼西亚联邦":   "FM",
-		"法罗群岛":       "FO",
-		"法国":         "FR",
-		"加蓬":         "GA",
-		"英国":         "GB",
-		"格林纳达":       "GD",
-		"格鲁吉亚":       "GE",
-		"法属圭亚那":      "GF",
-		"根西岛":        "GG",
-		"加纳":         "GH",
-		"直布罗陀":       "GI",
-		"格陵兰":        "GL",
-		"冈比亚":        "GM",
-		"几内亚":        "GN",
-		"瓜德罗普":       "GP",
-		"赤道几内亚":      "GQ",
-		"希腊":         "GR",
-		"南乔治亚岛和南桑威奇群岛": "GS",
-		"危地马拉":         "GT",
-		"关岛":           "GU",
-		"几内亚比绍":        "GW",
-		"圭亚那":          "GY",
-		"香港":           "HK",
-		"赫德岛和麦克唐纳群岛": "HM",
-		"洪都拉斯":       "HN",
-		"克罗地亚":       "HR",
-		"海地":         "HT",
-		"匈牙利":        "HU",
-		"印度尼西亚":      "ID",
-		"爱尔兰":        "IE",
-		"以色列":        "IL",
-		"马恩岛":        "IM",
-		"印度":         "IN",
-		"英属印度洋领地":    "IO",
-		"伊拉克":        "IQ",
-		"伊朗":         "IR",
-		"冰岛":         "IS",
-		"意大利":        "IT",
-		"泽西岛":        "JE",
-		"牙买加":        "JM",
-		"约旦":         "JO",
-		"日本":         "JP",
-		"肯尼亚":        "KE",
-		"吉尔吉斯斯坦":     "KG",
-		"柬埔寨":        "KH",
-		"基里巴斯":       "KI",
-		"科摩罗":        "KM",
-		"圣基茨和尼维斯":    "KN",
-		"朝鲜":         "KP",
-		"韩国":         "KR",
-		"科威特":        "KW",
-		"开曼群岛":       "KY",
-		"哈萨克斯坦":      "KZ",
-		"老挝":         "LA",
-		"黎巴嫩":        "LB",
-		"圣卢西亚":       "LC",
-		"列支敦士登":      "LI",
-		"斯里兰卡":       "LK",
-		"利比里亚":       "LR",
-		"莱索托":        "LS",
-		"立陶宛":        "LT",
-		"卢森堡":        "LU",
-		"拉脱维亚":       "LV",
-		"利比亚":        "LY",
-		"摩洛哥":        "MA",
-		"摩纳哥":        "MC",
-		"摩尔多瓦":       "MD",
-		"黑山":         "ME",
-		"法属圣马丁":      "MF",
-		"马达加斯加":      "MG",
-		"马绍尔群岛":      "MH",
-		"马其顿":        "MK",
-		"马里":         "ML",
-		"缅甸":         "MM",
-		"蒙古":         "MN",
-		"澳门":         "MO",
-		"北马里亚纳群岛":    "MP",
-		"马提尼克岛":      "MQ",
-		"毛里塔尼亚":      "MR",
-		"蒙特塞拉特岛":     "MS",
-		"马耳他":        "MT",
-		"毛里求斯":       "MU",
-		"马尔代夫":       "MV",
-		"马拉维":        "MW",
-		"墨西哥":        "MX",
-		"马来西亚":       "MY",
-		"莫桑比克":       "MZ",
-		"纳米比亚":       "NA",
-		"新喀里多尼亚":     "NC",
-		"尼日尔":        "NE",
-		"诺福克岛":       "NF",
-		"尼日利亚":       "NG",
-		"尼加拉瓜":       "NI",
-		"纳戈尔诺-卡拉巴赫":  "NK",
-		"荷兰":         "NL",
-		"挪威":         "NO",
-		"尼泊尔":        "NP",
-		"瑙鲁":         "NR",
-		"纽埃岛":        "NU",
-		"新西兰":        "NZ",
-		"阿曼":         "OM",
-		"巴拿马":        "PA",
-		"秘鲁":         "PE",
-		"法属波利尼西亚":    "PF",
-		"巴布亚新几内亚":    "PG",
-		"菲律宾":        "PH",
-		"巴基斯坦":       "PK",
-		"波兰":         "PL",
-		"圣皮埃尔和密克隆群岛":  "PM",
-		"皮特凯恩群岛":      "PN",
-		"波多黎各":        "PR",
-		"巴勒斯坦":        "PS",
-		"葡萄牙":         "PT",
-		"帕劳":          "PW",
-		"巴拉圭":         "PY",
-		"卡塔尔":         "QA",
-		"留尼汪岛":        "RE",
-		"罗马尼亚":        "RO",
-		"塞尔维亚":        "RS",
-		"俄罗斯":         "RU",
-		"卢旺达":         "RW",
-		"沙特阿拉伯":       "SA",
-		"所罗门群岛":       "SB",
-		"塞舌尔":         "SC",
-		"苏丹":          "SD",
-		"瑞典":          "SE",
-		"新加坡":         "SG",
-		"圣赫勒拿":        "SH",
-		"斯洛文尼亚":       "SI",
-		"斯瓦尔巴群岛和扬马延岛": "SJ",
-		"斯洛伐克":        "SK",
-		"塞拉利昂":        "SL",
-		"圣马力诺":        "SM",
-		"塞内加尔":        "SN",
-		"索马里":         "SO",
-		"苏里南":         "SR",
-		"南苏丹":         "SS",
-		"圣多美和普林西比":    "ST",
-		"萨尔瓦多":        "SV",
-		"荷属圣马丁":       "SX",
-		"叙利亚":         "SY",
-		"斯威士兰":        "SZ",
-		"特克斯和凯科斯群岛":   "TC",
-		"乍得":          "TD",
-		"法属南部领地":      "TF",
-		"多哥":          "TG",
-		"泰国":          "TH",
-		"塔吉克斯坦":       "TJ",
-		"托克劳群岛":       "TK",
-		"东帝汶":         "TL",
-		"土库曼斯坦":       "TM",
-		"突尼斯":         "TN",
-		"汤加":          "TO",
-		"土耳其":         "TR",
-		"特立尼达和多巴哥":    "TT",
-		"图瓦卢":         "TV",
-		"台湾":          "TW",
-		"坦桑尼亚":        "TZ",
-		"乌克兰":         "UA",
-		"乌干达":         "UG",
-		"美国本土外小岛屿":    "UM",
-		"美国":          "US",
-		"乌拉圭":         "UY",
-		"乌兹别克斯坦":      "UZ",
-		"梵蒂冈":         "VA",
-		"圣文森特和格林纳丁斯":  "VC",
-		"委内瑞拉":        "VE",
-		"英属维尔京群岛":     "VG",
-		"美属维尔京群岛":     "VI",
-		"越南":          "VN",
-		"瓦努阿图":        "VU",
-		"瓦利斯和富图纳群岛":   "WF",
-		"萨摩亚":         "WS",
-		"也门":          "YE",
-		"马约特":         "YT",
-		"南非":          "ZA",
-		"赞比亚":         "ZM",
-		"津巴布韦":        "ZW",
+
+	countryCodes = map[string]Country{}
+
+	// <editor-fold desc="country codes">
+	CountryAD = Country{Code: "AD", Title: "安道尔"}
+	CountryAE = Country{Code: "AE", Title: "阿联酋"}
+	CountryAF = Country{Code: "AF", Title: "阿富汗"}
+	CountryAG = Country{Code: "AG", Title: "安提瓜和巴布达"}
+	CountryAI = Country{Code: "AI", Title: "安圭拉"}
+	CountryAL = Country{Code: "AL", Title: "阿尔巴尼亚"}
+	CountryAM = Country{Code: "AM", Title: "亚美尼亚"}
+	CountryAO = Country{Code: "AO", Title: "安哥拉"}
+	CountryAQ = Country{Code: "AQ", Title: "南极洲"}
+	CountryAR = Country{Code: "AR", Title: "阿根廷"}
+	CountryAS = Country{Code: "AS", Title: "美属萨摩亚"}
+	CountryAT = Country{Code: "AT", Title: "奥地利"}
+	CountryAU = Country{Code: "AU", Title: "澳大利亚"}
+	CountryAW = Country{Code: "AW", Title: "阿鲁巴"}
+	CountryAX = Country{Code: "AX", Title: "奥兰群岛"}
+	CountryAZ = Country{Code: "AZ", Title: "阿塞拜疆"}
+	CountryBA = Country{Code: "BA", Title: "波斯尼亚和黑塞哥维那"}
+	CountryBB = Country{Code: "BB", Title: "巴巴多斯"}
+	CountryBD = Country{Code: "BD", Title: "孟加拉"}
+	CountryBE = Country{Code: "BE", Title: "比利时"}
+	CountryBF = Country{Code: "BF", Title: "布基纳法索"}
+	CountryBG = Country{Code: "BG", Title: "保加利亚"}
+	CountryBH = Country{Code: "BH", Title: "巴林"}
+	CountryBI = Country{Code: "BI", Title: "布隆迪"}
+	CountryBJ = Country{Code: "BJ", Title: "贝宁"}
+	CountryBL = Country{Code: "BL", Title: "圣巴泰勒米岛"}
+	CountryBM = Country{Code: "BM", Title: "百慕大"}
+	CountryBN = Country{Code: "BN", Title: "文莱"}
+	CountryBO = Country{Code: "BO", Title: "玻利维亚"}
+	CountryBQ = Country{Code: "BQ", Title: "荷兰加勒比"}
+	CountryBR = Country{Code: "BR", Title: "巴西"}
+	CountryBS = Country{Code: "BS", Title: "巴哈马"}
+	CountryBT = Country{Code: "BT", Title: "不丹"}
+	CountryBV = Country{Code: "BV", Title: "布韦岛"}
+	CountryBW = Country{Code: "BW", Title: "博茨瓦纳"}
+	CountryBY = Country{Code: "BY", Title: "白俄罗斯"}
+	CountryBZ = Country{Code: "BZ", Title: "伯利兹"}
+	CountryCA = Country{Code: "CA", Title: "加拿大"}
+	CountryCC = Country{Code: "CC", Title: "科科斯(基林)群岛"}
+	CountryCD = Country{Code: "CD", Title: "刚果(金)"}
+	CountryCF = Country{Code: "CF", Title: "中非"}
+	CountryCG = Country{Code: "CG", Title: "刚果(布)"}
+	CountryCH = Country{Code: "CH", Title: "瑞士"}
+	CountryCI = Country{Code: "CI", Title: "科特迪瓦"}
+	CountryCK = Country{Code: "CK", Title: "库克群岛"}
+	CountryCL = Country{Code: "CL", Title: "智利"}
+	CountryCM = Country{Code: "CM", Title: "喀麦隆"}
+	CountryCN = Country{Code: "CN", Title: "中国", States: allStatesCN, StateCodes: stateCodesCN}
+	CountryCO = Country{Code: "CO", Title: "哥伦比亚"}
+	CountryCR = Country{Code: "CR", Title: "哥斯达黎加"}
+	CountryCU = Country{Code: "CU", Title: "古巴"}
+	CountryCV = Country{Code: "CV", Title: "佛得角"}
+	CountryCW = Country{Code: "CW", Title: "库拉索"}
+	CountryCX = Country{Code: "CX", Title: "圣诞岛"}
+	CountryCY = Country{Code: "CY", Title: "塞浦路斯"}
+	CountryCZ = Country{Code: "CZ", Title: "捷克"}
+	CountryDE = Country{Code: "DE", Title: "德国"}
+	CountryDJ = Country{Code: "DJ", Title: "吉布提"}
+	CountryDK = Country{Code: "DK", Title: "丹麦"}
+	CountryDM = Country{Code: "DM", Title: "多米尼克"}
+	CountryDO = Country{Code: "DO", Title: "多米尼加"}
+	CountryDZ = Country{Code: "DZ", Title: "阿尔及利亚"}
+	CountryEC = Country{Code: "EC", Title: "厄瓜多尔"}
+	CountryEE = Country{Code: "EE", Title: "爱沙尼亚"}
+	CountryEG = Country{Code: "EG", Title: "埃及"}
+	CountryEH = Country{Code: "EH", Title: "西撒哈拉"}
+	CountryER = Country{Code: "ER", Title: "厄立特里亚"}
+	CountryES = Country{Code: "ES", Title: "西班牙"}
+	CountryET = Country{Code: "ET", Title: "埃塞俄比亚"}
+	CountryFI = Country{Code: "FI", Title: "芬兰"}
+	CountryFJ = Country{Code: "FJ", Title: "斐济"}
+	CountryFK = Country{Code: "FK", Title: "福克兰群岛"}
+	CountryFM = Country{Code: "FM", Title: "密克罗尼西亚联邦"}
+	CountryFO = Country{Code: "FO", Title: "法罗群岛"}
+	CountryFR = Country{Code: "FR", Title: "法国"}
+	CountryGA = Country{Code: "GA", Title: "加蓬"}
+	CountryGB = Country{Code: "GB", Title: "英国"}
+	CountryGD = Country{Code: "GD", Title: "格林纳达"}
+	CountryGE = Country{Code: "GE", Title: "格鲁吉亚"}
+	CountryGF = Country{Code: "GF", Title: "法属圭亚那"}
+	CountryGG = Country{Code: "GG", Title: "根西岛"}
+	CountryGH = Country{Code: "GH", Title: "加纳"}
+	CountryGI = Country{Code: "GI", Title: "直布罗陀"}
+	CountryGL = Country{Code: "GL", Title: "格陵兰"}
+	CountryGM = Country{Code: "GM", Title: "冈比亚"}
+	CountryGN = Country{Code: "GN", Title: "几内亚"}
+	CountryGP = Country{Code: "GP", Title: "瓜德罗普"}
+	CountryGQ = Country{Code: "GQ", Title: "赤道几内亚"}
+	CountryGR = Country{Code: "GR", Title: "希腊"}
+	CountryGS = Country{Code: "GS", Title: "南乔治亚岛和南桑威奇群岛"}
+	CountryGT = Country{Code: "GT", Title: "危地马拉"}
+	CountryGU = Country{Code: "GU", Title: "关岛"}
+	CountryGW = Country{Code: "GW", Title: "几内亚比绍"}
+	CountryGY = Country{Code: "GY", Title: "圭亚那"}
+	CountryHK = Country{Code: "HK", Title: "香港"}
+	CountryHM = Country{Code: "HM", Title: "赫德岛和麦克唐纳群岛"}
+	CountryHN = Country{Code: "HN", Title: "洪都拉斯"}
+	CountryHR = Country{Code: "HR", Title: "克罗地亚"}
+	CountryHT = Country{Code: "HT", Title: "海地"}
+	CountryHU = Country{Code: "HU", Title: "匈牙利"}
+	CountryID = Country{Code: "ID", Title: "印度尼西亚"}
+	CountryIE = Country{Code: "IE", Title: "爱尔兰"}
+	CountryIL = Country{Code: "IL", Title: "以色列"}
+	CountryIM = Country{Code: "IM", Title: "马恩岛"}
+	CountryIN = Country{Code: "IN", Title: "印度"}
+	CountryIO = Country{Code: "IO", Title: "英属印度洋领地"}
+	CountryIQ = Country{Code: "IQ", Title: "伊拉克"}
+	CountryIR = Country{Code: "IR", Title: "伊朗"}
+	CountryIS = Country{Code: "IS", Title: "冰岛"}
+	CountryIT = Country{Code: "IT", Title: "意大利"}
+	CountryJE = Country{Code: "JE", Title: "泽西岛"}
+	CountryJM = Country{Code: "JM", Title: "牙买加"}
+	CountryJO = Country{Code: "JO", Title: "约旦"}
+	CountryJP = Country{Code: "JP", Title: "日本"}
+	CountryKE = Country{Code: "KE", Title: "肯尼亚"}
+	CountryKG = Country{Code: "KG", Title: "吉尔吉斯斯坦"}
+	CountryKH = Country{Code: "KH", Title: "柬埔寨"}
+	CountryKI = Country{Code: "KI", Title: "基里巴斯"}
+	CountryKM = Country{Code: "KM", Title: "科摩罗"}
+	CountryKN = Country{Code: "KN", Title: "圣基茨和尼维斯"}
+	CountryKP = Country{Code: "KP", Title: "朝鲜"}
+	CountryKR = Country{Code: "KR", Title: "韩国"}
+	CountryKW = Country{Code: "KW", Title: "科威特"}
+	CountryKY = Country{Code: "KY", Title: "开曼群岛"}
+	CountryKZ = Country{Code: "KZ", Title: "哈萨克斯坦"}
+	CountryLA = Country{Code: "LA", Title: "老挝"}
+	CountryLB = Country{Code: "LB", Title: "黎巴嫩"}
+	CountryLC = Country{Code: "LC", Title: "圣卢西亚"}
+	CountryLI = Country{Code: "LI", Title: "列支敦士登"}
+	CountryLK = Country{Code: "LK", Title: "斯里兰卡"}
+	CountryLR = Country{Code: "LR", Title: "利比里亚"}
+	CountryLS = Country{Code: "LS", Title: "莱索托"}
+	CountryLT = Country{Code: "LT", Title: "立陶宛"}
+	CountryLU = Country{Code: "LU", Title: "卢森堡"}
+	CountryLV = Country{Code: "LV", Title: "拉脱维亚"}
+	CountryLY = Country{Code: "LY", Title: "利比亚"}
+	CountryMA = Country{Code: "MA", Title: "摩洛哥"}
+	CountryMC = Country{Code: "MC", Title: "摩纳哥"}
+	CountryMD = Country{Code: "MD", Title: "摩尔多瓦"}
+	CountryME = Country{Code: "ME", Title: "黑山"}
+	CountryMF = Country{Code: "MF", Title: "法属圣马丁"}
+	CountryMG = Country{Code: "MG", Title: "马达加斯加"}
+	CountryMH = Country{Code: "MH", Title: "马绍尔群岛"}
+	CountryMK = Country{Code: "MK", Title: "马其顿"}
+	CountryML = Country{Code: "ML", Title: "马里"}
+	CountryMM = Country{Code: "MM", Title: "缅甸"}
+	CountryMN = Country{Code: "MN", Title: "蒙古"}
+	CountryMO = Country{Code: "MO", Title: "澳门"}
+	CountryMP = Country{Code: "MP", Title: "北马里亚纳群岛"}
+	CountryMQ = Country{Code: "MQ", Title: "马提尼克岛"}
+	CountryMR = Country{Code: "MR", Title: "毛里塔尼亚"}
+	CountryMS = Country{Code: "MS", Title: "蒙特塞拉特岛"}
+	CountryMT = Country{Code: "MT", Title: "马耳他"}
+	CountryMU = Country{Code: "MU", Title: "毛里求斯"}
+	CountryMV = Country{Code: "MV", Title: "马尔代夫"}
+	CountryMW = Country{Code: "MW", Title: "马拉维"}
+	CountryMX = Country{Code: "MX", Title: "墨西哥"}
+	CountryMY = Country{Code: "MY", Title: "马来西亚"}
+	CountryMZ = Country{Code: "MZ", Title: "莫桑比克"}
+	CountryNA = Country{Code: "NA", Title: "纳米比亚"}
+	CountryNC = Country{Code: "NC", Title: "新喀里多尼亚"}
+	CountryNE = Country{Code: "NE", Title: "尼日尔"}
+	CountryNF = Country{Code: "NF", Title: "诺福克岛"}
+	CountryNG = Country{Code: "NG", Title: "尼日利亚"}
+	CountryNI = Country{Code: "NI", Title: "尼加拉瓜"}
+	CountryNK = Country{Code: "NK", Title: "纳戈尔诺-卡拉巴赫"}
+	CountryNL = Country{Code: "NL", Title: "荷兰"}
+	CountryNO = Country{Code: "NO", Title: "挪威"}
+	CountryNP = Country{Code: "NP", Title: "尼泊尔"}
+	CountryNR = Country{Code: "NR", Title: "瑙鲁"}
+	CountryNU = Country{Code: "NU", Title: "纽埃岛"}
+	CountryNZ = Country{Code: "NZ", Title: "新西兰"}
+	CountryOM = Country{Code: "OM", Title: "阿曼"}
+	CountryPA = Country{Code: "PA", Title: "巴拿马"}
+	CountryPE = Country{Code: "PE", Title: "秘鲁"}
+	CountryPF = Country{Code: "PF", Title: "法属波利尼西亚"}
+	CountryPG = Country{Code: "PG", Title: "巴布亚新几内亚"}
+	CountryPH = Country{Code: "PH", Title: "菲律宾"}
+	CountryPK = Country{Code: "PK", Title: "巴基斯坦"}
+	CountryPL = Country{Code: "PL", Title: "波兰"}
+	CountryPM = Country{Code: "PM", Title: "圣皮埃尔和密克隆群岛"}
+	CountryPN = Country{Code: "PN", Title: "皮特凯恩群岛"}
+	CountryPR = Country{Code: "PR", Title: "波多黎各"}
+	CountryPS = Country{Code: "PS", Title: "巴勒斯坦"}
+	CountryPT = Country{Code: "PT", Title: "葡萄牙"}
+	CountryPW = Country{Code: "PW", Title: "帕劳"}
+	CountryPY = Country{Code: "PY", Title: "巴拉圭"}
+	CountryQA = Country{Code: "QA", Title: "卡塔尔"}
+	CountryRE = Country{Code: "RE", Title: "留尼汪岛"}
+	CountryRO = Country{Code: "RO", Title: "罗马尼亚"}
+	CountryRS = Country{Code: "RS", Title: "塞尔维亚"}
+	CountryRU = Country{Code: "RU", Title: "俄罗斯"}
+	CountryRW = Country{Code: "RW", Title: "卢旺达"}
+	CountrySA = Country{Code: "SA", Title: "沙特阿拉伯"}
+	CountrySB = Country{Code: "SB", Title: "所罗门群岛"}
+	CountrySC = Country{Code: "SC", Title: "塞舌尔"}
+	CountrySD = Country{Code: "SD", Title: "苏丹"}
+	CountrySE = Country{Code: "SE", Title: "瑞典"}
+	CountrySG = Country{Code: "SG", Title: "新加坡"}
+	CountrySH = Country{Code: "SH", Title: "圣赫勒拿"}
+	CountrySI = Country{Code: "SI", Title: "斯洛文尼亚"}
+	CountrySJ = Country{Code: "SJ", Title: "斯瓦尔巴群岛和扬马延岛"}
+	CountrySK = Country{Code: "SK", Title: "斯洛伐克"}
+	CountrySL = Country{Code: "SL", Title: "塞拉利昂"}
+	CountrySM = Country{Code: "SM", Title: "圣马力诺"}
+	CountrySN = Country{Code: "SN", Title: "塞内加尔"}
+	CountrySO = Country{Code: "SO", Title: "索马里"}
+	CountrySR = Country{Code: "SR", Title: "苏里南"}
+	CountrySS = Country{Code: "SS", Title: "南苏丹"}
+	CountryST = Country{Code: "ST", Title: "圣多美和普林西比"}
+	CountrySV = Country{Code: "SV", Title: "萨尔瓦多"}
+	CountrySX = Country{Code: "SX", Title: "荷属圣马丁"}
+	CountrySY = Country{Code: "SY", Title: "叙利亚"}
+	CountrySZ = Country{Code: "SZ", Title: "斯威士兰"}
+	CountryTC = Country{Code: "TC", Title: "特克斯和凯科斯群岛"}
+	CountryTD = Country{Code: "TD", Title: "乍得"}
+	CountryTF = Country{Code: "TF", Title: "法属南部领地"}
+	CountryTG = Country{Code: "TG", Title: "多哥"}
+	CountryTH = Country{Code: "TH", Title: "泰国"}
+	CountryTJ = Country{Code: "TJ", Title: "塔吉克斯坦"}
+	CountryTK = Country{Code: "TK", Title: "托克劳群岛"}
+	CountryTL = Country{Code: "TL", Title: "东帝汶"}
+	CountryTM = Country{Code: "TM", Title: "土库曼斯坦"}
+	CountryTN = Country{Code: "TN", Title: "突尼斯"}
+	CountryTO = Country{Code: "TO", Title: "汤加"}
+	CountryTR = Country{Code: "TR", Title: "土耳其"}
+	CountryTT = Country{Code: "TT", Title: "特立尼达和多巴哥"}
+	CountryTV = Country{Code: "TV", Title: "图瓦卢"}
+	CountryTW = Country{Code: "TW", Title: "台湾"}
+	CountryTZ = Country{Code: "TZ", Title: "坦桑尼亚"}
+	CountryUA = Country{Code: "UA", Title: "乌克兰"}
+	CountryUG = Country{Code: "UG", Title: "乌干达"}
+	CountryUM = Country{Code: "UM", Title: "美国本土外小岛屿"}
+	CountryUS = Country{Code: "US", Title: "美国"}
+	CountryUY = Country{Code: "UY", Title: "乌拉圭"}
+	CountryUZ = Country{Code: "UZ", Title: "乌兹别克斯坦"}
+	CountryVA = Country{Code: "VA", Title: "梵蒂冈"}
+	CountryVC = Country{Code: "VC", Title: "圣文森特和格林纳丁斯"}
+	CountryVE = Country{Code: "VE", Title: "委内瑞拉"}
+	CountryVG = Country{Code: "VG", Title: "英属维尔京群岛"}
+	CountryVI = Country{Code: "VI", Title: "美属维尔京群岛"}
+	CountryVN = Country{Code: "VN", Title: "越南"}
+	CountryVU = Country{Code: "VU", Title: "瓦努阿图"}
+	CountryWF = Country{Code: "WF", Title: "瓦利斯和富图纳群岛"}
+	CountryWS = Country{Code: "WS", Title: "萨摩亚"}
+	CountryYE = Country{Code: "YE", Title: "也门"}
+	CountryYT = Country{Code: "YT", Title: "马约特"}
+	CountryZA = Country{Code: "ZA", Title: "南非"}
+	CountryZM = Country{Code: "ZM", Title: "赞比亚"}
+	CountryZW = Country{Code: "ZW", Title: "津巴布韦"}
+	// </editor-fold>
+
+	// <editor-fold desc="all countries">
+	allCountries = []Country{
+		CountryAD, CountryAE, CountryAF, CountryAG, CountryAI, CountryAL, CountryAM, CountryAO,
+		CountryAQ, CountryAR, CountryAS, CountryAT, CountryAU, CountryAW, CountryAX, CountryAZ,
+		CountryBA, CountryBB, CountryBD, CountryBE, CountryBF, CountryBG, CountryBH, CountryBI,
+		CountryBJ, CountryBL, CountryBM, CountryBN, CountryBO, CountryBQ, CountryBR, CountryBS,
+		CountryBT, CountryBV, CountryBW, CountryBY, CountryBZ,
+		CountryCA, CountryCC, CountryCD, CountryCF, CountryCG, CountryCH, CountryCI, CountryCK,
+		CountryCL, CountryCM, CountryCN, CountryCO, CountryCR, CountryCU, CountryCV, CountryCW,
+		CountryCX, CountryCY, CountryCZ,
+		CountryDE, CountryDJ, CountryDK, CountryDM, CountryDO, CountryDZ,
+		CountryEC, CountryEE, CountryEG, CountryEH, CountryER, CountryES, CountryET, CountryFI,
+		CountryFJ, CountryFK, CountryFM, CountryFO, CountryFR, CountryGA, CountryGB, CountryGD,
+		CountryGE, CountryGF, CountryGG, CountryGH, CountryGI, CountryGL, CountryGM, CountryGN,
+		CountryGP, CountryGQ, CountryGR, CountryGS, CountryGT, CountryGU, CountryGW, CountryGY,
+		CountryHK, CountryHM, CountryHN, CountryHR, CountryHT, CountryHU,
+		CountryID, CountryIE, CountryIL, CountryIM, CountryIN, CountryIO, CountryIQ, CountryIR,
+		CountryIS, CountryIT,
+		CountryJE, CountryJM, CountryJO, CountryJP,
+		CountryKE, CountryKG, CountryKH, CountryKI, CountryKM, CountryKN, CountryKP, CountryKR,
+		CountryKW, CountryKY, CountryKZ,
+		CountryLA, CountryLB, CountryLC, CountryLI, CountryLK, CountryLR, CountryLS, CountryLT,
+		CountryLU, CountryLV, CountryLY,
+		CountryMA, CountryMC, CountryMD, CountryME, CountryMF, CountryMG, CountryMH, CountryMK,
+		CountryML, CountryMM, CountryMN, CountryMO, CountryMP, CountryMQ, CountryMR, CountryMS,
+		CountryMT, CountryMU, CountryMV, CountryMW, CountryMX, CountryMY, CountryMZ,
+		CountryNA, CountryNC, CountryNE, CountryNF, CountryNG, CountryNI, CountryNK, CountryNL,
+		CountryNO, CountryNP, CountryNR, CountryNU, CountryNZ,
+		CountryOM,
+		CountryPA, CountryPE, CountryPF, CountryPG, CountryPH, CountryPK, CountryPL, CountryPM,
+		CountryPN, CountryPR, CountryPS, CountryPT, CountryPW, CountryPY,
+		CountryQA,
+		CountryRE, CountryRO, CountryRS, CountryRU, CountryRW,
+		CountrySA, CountrySB, CountrySC, CountrySD, CountrySE, CountrySG, CountrySH, CountrySI,
+		CountrySJ, CountrySK, CountrySL, CountrySM, CountrySN, CountrySO, CountrySR, CountrySS,
+		CountryST, CountrySV, CountrySX, CountrySY, CountrySZ,
+		CountryTC, CountryTD, CountryTF, CountryTG, CountryTH, CountryTJ, CountryTK, CountryTL,
+		CountryTM, CountryTN, CountryTO, CountryTR, CountryTT, CountryTV, CountryTW, CountryTZ,
+		CountryUA, CountryUG, CountryUM, CountryUS, CountryUY, CountryUZ,
+		CountryVA, CountryVC, CountryVE, CountryVG, CountryVI, CountryVN, CountryVU,
+		CountryWF, CountryWS,
+		CountryYE, CountryYT,
+		CountryZA, CountryZM, CountryZW,
 	}
+	// </editor-fold>
 
 	irregularCountries = map[string]bool{
 		"012.NET 骨干网":                  true,
@@ -874,10 +954,3 @@ var (
 		"非洲地区":                         true,
 	}
 )
-
-func getCountryCode(c string) string {
-	if v, ok := countryCodes[c]; ok {
-		return v
-	}
-	return ""
-}
