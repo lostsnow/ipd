@@ -9,6 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var cfg Config
+
+type Config struct {
+	Db *ip.Db
+}
+
 var RootCmd = &cobra.Command{
 	Use:   "ipd 1.2.3.4",
 	Short: "ipd",
@@ -21,13 +27,8 @@ var RootCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		db, err := LoadDb()
-		if err != nil {
-			fmt.Printf("IP datx load error: %s\n", err)
-			return
-		}
 		ipAddr := args[0]
-		l, err := db.Find(ipAddr)
+		l, err := cfg.Db.Find(ipAddr)
 		if err != nil {
 			fmt.Printf("IP find error: %s\n", err)
 			return
@@ -41,6 +42,15 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
+}
+
+func init() {
+	db, err := LoadDb()
+	if err != nil {
+		fmt.Printf("IP datx load error: %s\n", err)
+		return
+	}
+	cfg.Db = db
 }
 
 func LoadDb() (*ip.Db, error) {

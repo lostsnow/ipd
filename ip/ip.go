@@ -11,14 +11,14 @@ import (
 )
 
 type Location struct {
-	Ip          string
-	Country     string
-	CountryCode string
-	State       string
-	StateCode   string
-	City        string
-	CityCode    string
-	Code        string
+	Ip          string `json:"ip"`
+	Country     string `json:"country"`
+	CountryCode string `json:"loc2"`
+	State       string `json:"state"`
+	StateCode   string `json:"loc4"`
+	City        string `json:"city"`
+	CityCode    string `json:"loc6"`
+	Code        string `json:"loc"`
 }
 
 type Db struct {
@@ -133,15 +133,22 @@ func (db *Db) Find(s string) (*Location, error) {
 				Country:     loc[0],
 				State:       loc[1],
 				City:        loc[2],
-				CountryCode: cCode,
-				StateCode:   sCode,
-				CityCode:    ccCode,
-				Code:        code,
+				CountryCode: codeWithDefault(cCode, "ZZ"),
+				StateCode:   codeWithDefault(sCode, "ZZ"),
+				CityCode:    codeWithDefault(ccCode, "ZZ"),
+				Code:        codeWithDefault(code, "ZZ"),
 			}, nil
 		}
 	}
 
 	return nil, fmt.Errorf("%s", "not found")
+}
+
+func codeWithDefault(c, d string) string {
+	if c == "" {
+		return d
+	}
+	return c
 }
 
 type IrregularLocation struct {

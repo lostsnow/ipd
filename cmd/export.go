@@ -15,15 +15,9 @@ var checkCmd = &cobra.Command{
 	Short: "ipd check",
 	Long:  `ipd check`,
 	Run: func(cmd *cobra.Command, args []string) {
-		db, err := LoadDb()
-		if err != nil {
-			fmt.Printf("IP datx load error: %s\n", err)
-			return
-		}
-
 		fmt.Println("Start check...")
 
-		i, err := db.Check()
+		i, err := cfg.Db.Check()
 		if err != nil {
 			fmt.Printf("IP location check: %s\n", err)
 			return
