@@ -1,0 +1,16 @@
+[Unit]
+Description=ipd
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/opt/projects/deploy/ipd
+ExecStart=/opt/projects/deploy/ipd/ipd api
+Restart=always
+Environment=USER=www HOME=/opt/projects/deploy/ipd
+
+[Install]
+WantedBy=multi-user.target
