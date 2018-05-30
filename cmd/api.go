@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/json-iterator/go"
 	"github.com/lostsnow/ipd/ip"
 	"github.com/spf13/cobra"
 )
@@ -22,12 +21,11 @@ var apiCmd = &cobra.Command{
 	Short: "ipd api",
 	Long:  `ipd api`,
 	Run: func(cmd *cobra.Command, args []string) {
-		r := mux.NewRouter()
-		r.HandleFunc("/"+route, IpHandler)
+		http.HandleFunc("/"+route, IpHandler)
 		addr := fmt.Sprintf("%s:%d", host, port)
 
 		log.Printf("listen on %s/%s", addr, route)
-		log.Fatal(http.ListenAndServe(addr, r))
+		log.Fatal(http.ListenAndServe(addr, nil))
 	},
 }
 
@@ -70,6 +68,7 @@ func IpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	type LocationResponse ip.Location
 	jsonByte, err := json.Marshal(l)
 	if err != nil {

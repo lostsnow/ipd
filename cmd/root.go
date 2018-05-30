@@ -48,6 +48,7 @@ func init() {
 	db, err := LoadDb()
 	if err != nil {
 		fmt.Printf("IP datx load error: %s\n", err)
+		os.Exit(-1)
 		return
 	}
 	cfg.Db = db

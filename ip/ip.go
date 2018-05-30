@@ -44,6 +44,8 @@ func (db *Db) load(fn string) error {
 	if err != nil {
 		return err
 	}
+	defer db.file.Close()
+
 	b4 := make([]byte, 4)
 	_, err = db.file.Read(b4)
 	if err != nil {
@@ -131,26 +133,19 @@ func (db *Db) Find(s string) (*Location, error) {
 				ccCode = code[:6]
 			}
 			return &Location{
-				Ip:          intToIP(val).String(),
+				Ip:          ipv.To4().String(),
 				Country:     loc[0],
 				State:       loc[1],
 				City:        loc[2],
-				CountryCode: codeWithDefault(cCode, "ZZ"),
-				StateCode:   codeWithDefault(sCode, "ZZ"),
-				CityCode:    codeWithDefault(ccCode, "ZZ"),
-				Code:        codeWithDefault(code, "ZZ"),
+				CountryCode: cCode,
+				StateCode:   sCode,
+				CityCode:    ccCode,
+				Code:        code,
 			}, nil
 		}
 	}
 
 	return nil, fmt.Errorf("%s", "not found")
-}
-
-func codeWithDefault(c, d string) string {
-	if c == "" {
-		return d
-	}
-	return c
 }
 
 type IrregularLocation struct {
@@ -228,16 +223,10 @@ func (db *Db) Check() (*IrregularLocation, error) {
 	return i, nil
 }
 
-func intToIP(nn uint32) net.IP {
-	ip := make(net.IP, 4)
-	binary.BigEndian.PutUint32(ip, nn)
-	return ip
-}
-
 func GetRegionCode(c, s, cc string) string {
 	country := GetCountry(c)
 	if country == nil {
-		return ""
+		return "ZZ"
 	}
 
 	state := country.GetState(s)
