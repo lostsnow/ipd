@@ -15,6 +15,7 @@ import (
 
 var host string
 var port int
+var route string
 
 var apiCmd = &cobra.Command{
 	Use:   "api",
@@ -22,10 +23,10 @@ var apiCmd = &cobra.Command{
 	Long:  `ipd api`,
 	Run: func(cmd *cobra.Command, args []string) {
 		r := mux.NewRouter()
-		r.HandleFunc("/", IpHandler)
+		r.HandleFunc("/"+route, IpHandler)
 		addr := fmt.Sprintf("%s:%d", host, port)
 
-		log.Printf("listen on %s", addr)
+		log.Printf("listen on %s/%s", addr, route)
 		log.Fatal(http.ListenAndServe(addr, r))
 	},
 }
@@ -34,6 +35,7 @@ func init() {
 	RootCmd.AddCommand(apiCmd)
 	apiCmd.Flags().StringVarP(&host, "host", "H", "127.0.0.1", "bind address")
 	apiCmd.Flags().IntVarP(&port, "port", "p", 22033, "bind port")
+	apiCmd.Flags().StringVarP(&route, "route", "r", "ip", "route")
 }
 
 func IpHandler(w http.ResponseWriter, r *http.Request) {
