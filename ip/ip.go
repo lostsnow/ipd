@@ -121,9 +121,11 @@ func (db *Db) Find(s string) (*Location, error) {
 			if len(code) >= 2 {
 				cCode = code[:2]
 				sCode = code[:2]
+				ccCode = code[:2]
 			}
 			if len(code) >= 4 {
 				sCode = code[:4]
+				ccCode = code[:4]
 			}
 			if len(code) >= 6 {
 				ccCode = code[:6]
