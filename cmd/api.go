@@ -51,12 +51,15 @@ func IpHandler(w http.ResponseWriter, r *http.Request) {
 
 	ipv := r.URL.Query().Get("_ip_")
 	if ipv == "" {
-		v, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			fmt.Printf("%s\n", err)
-			return
+		ipv = r.Header.Get("X-Real-IP")
+		if ipv == "" {
+			v, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				fmt.Printf("%s\n", err)
+				return
+			}
+			ipv = v
 		}
-		ipv = v
 	}
 
 	l, err := cfg.Db.Find(ipv)
