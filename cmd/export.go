@@ -10,44 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var checkCmd = &cobra.Command{
-	Use:   "check",
-	Short: "ipd check",
-	Long:  `ipd check`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Start check...")
-
-		i, err := cfg.Db.Check()
-		if err != nil {
-			fmt.Printf("IP location check: %s\n", err)
-			return
-		}
-
-		if len(i.Country) > 0 {
-			fmt.Println("Irregular Country:")
-			for _, country := range i.Country {
-				fmt.Println("  *", country)
-			}
-		}
-
-		if len(i.State) > 0 {
-			fmt.Println("Irregular State:")
-			for _, state := range i.State {
-				fmt.Println("  *", state)
-			}
-		}
-
-		if len(i.City) > 0 {
-			fmt.Println("Irregular City:")
-			for _, city := range i.City {
-				fmt.Println("  *", city)
-			}
-		}
-
-		fmt.Println("End check")
-	},
-}
-
 var genCmd = &cobra.Command{
 	Use:   "gen",
 	Short: "ipd gen",
@@ -154,6 +116,5 @@ var genCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(checkCmd)
 	RootCmd.AddCommand(genCmd)
 }

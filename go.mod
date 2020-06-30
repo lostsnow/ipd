@@ -1,5 +1,7 @@
 module github.com/lostsnow/ipd
 
+go 1.14
+
 require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/json-iterator/go v0.0.0-20180315132816-ca39e5af3ece

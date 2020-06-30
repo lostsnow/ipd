@@ -55,5 +55,5 @@ func init() {
 }
 
 func LoadDb() (*ip.Db, error) {
-	return ip.NewDb("./data/17monipdb.datx")
+	return ip.NewDb("./data/ipip.ipdb")
 }
